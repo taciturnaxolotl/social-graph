@@ -40,6 +40,16 @@ const RARITY: Record<string, string> = {
 };
 
 /**
+ * The cost pips beside a stat, which on a real card are the energy an attack
+ * takes. Order of magnitude rather than the number itself, so the row reads at
+ * a glance and a hundred and thirty is visibly a different thing from four.
+ */
+const pips = (value: number) => (value < 1 ? 0 : Math.min(4, Math.ceil(Math.log10(value + 1))));
+
+/** Named, so the four identical pips have something stable to be keyed by. */
+const PIPS = ["one", "two", "three", "four"];
+
+/**
  * A cedar, because the app is called The Cedar Tree, and a watermark behind
  * the art is the oldest trick in card design for making a rectangle feel
  * printed rather than rendered.
@@ -88,9 +98,6 @@ export function Card({ me }: { me: Me }) {
   }
 
   const year = me.class ? CLASSES[me.class] : null;
-  // Yours if you wrote one, otherwise the type line every card carries.
-  const print = me.flavour ?? [school.label, year].filter(Boolean).join(" · ");
-
   const moves: [string, number][] = [
     ["answered", me.answers],
     ["notes written", me.notes],
@@ -99,6 +106,9 @@ export function Card({ me }: { me: Me }) {
 
   return (
     <div className="card-stage">
+      {/* The gold stock, and inside it a body that is tinted rather than
+          white. On a real card the colour is the whole interior, not a line
+          around the edge, and that turned out to be the whole difference. */}
       <div
         ref={frame}
         className={`tcg ${at.tier}`}
@@ -106,53 +116,80 @@ export function Card({ me }: { me: Me }) {
         onPointerMove={tilt}
         onPointerLeave={rest}
       >
-        <div className="tcg-sheen" aria-hidden="true" />
-        <div className="tcg-grain" aria-hidden="true" />
-        <p className="sr-only">
-          level {at.level}, {at.tier}, {school.label}
-        </p>
+        <div className="tcg-body">
+          <div className="tcg-sheen" aria-hidden="true" />
+          <div className="tcg-grain" aria-hidden="true" />
+          <p className="sr-only">
+            level {at.level}, {at.tier}, {school.label}
+          </p>
 
-        <header className="tcg-plate">
-          <span className="tcg-name">{me.name}</span>
-          <span className="tcg-lv">
-            lv<b>{at.level}</b>
-          </span>
-          <span className="tcg-type" title={school.label}>
-            {school.mark}
-          </span>
-          <span className="tcg-hp">
-            <small>known by</small>
-            <b>{me.knownBy}</b>
-          </span>
-        </header>
+          {/* The strip that says what kind of card this is, where a real one
+              says STAGE 1 and what it evolves from. */}
+          <p className="tcg-stage">
+            <b>lv {at.level}</b>
+            <span>the cedar tree · {me.joined ? "participant" : "listed"}</span>
+          </p>
 
-        <div className="tcg-art">
-          <Cedar />
-          <Avatar person={me} size={420} />
+          <header className="tcg-plate">
+            <span className="tcg-name">{me.name}</span>
+            <span className="tcg-hp">
+              {me.knownBy}
+              <small>known by</small>
+            </span>
+            <span className="tcg-type" title={school.label}>
+              {school.mark}
+            </span>
+          </header>
+
+          <div className="tcg-art">
+            <Cedar />
+            <Avatar person={me} size={420} />
+          </div>
+
+          {/* The line under the art, where a card puts the species, the height
+              and the weight in the same breath. */}
+          <p className="tcg-species">{[school.label, year].filter(Boolean).join(". ")}.</p>
+
+          <dl className="tcg-moves">
+            {moves.map(([label, value]) => (
+              <div key={label}>
+                <span className="tcg-cost" aria-hidden="true">
+                  {PIPS.slice(0, pips(value)).map((pip) => (
+                    <i key={pip} />
+                  ))}
+                </span>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {/* Three labelled columns along the bottom, where weakness,
+              resistance and retreat cost go. */}
+          <div className="tcg-bottom">
+            <span>
+              <small>next level</small>
+              {at.toNext}
+            </span>
+            <span>
+              <small>rarity</small>
+              {at.tier} <i aria-hidden="true">{RARITY[at.tier]}</i>
+            </span>
+            <span>
+              <small>type</small>
+              <i aria-hidden="true">{school.mark}</i> {school.label.split(" ")[0]}
+            </span>
+          </div>
+
+          {me.flavour && <p className="tcg-flavour">{me.flavour}</p>}
+
+          <p className="tcg-fine">
+            <span>illus. {me.photo ? "cedarville directory" : "initials"}</span>
+            <span>
+              cdr·26 <b>{me.id.slice(-4)}</b>/4651 <i aria-hidden="true">{RARITY[at.tier]}</i>
+            </span>
+          </p>
         </div>
-
-        <p className="tcg-print">{print}</p>
-
-        <dl className="tcg-moves">
-          {moves.map(([label, value]) => (
-            <div key={label}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
-
-        <footer className="tcg-foot">
-          <span className="tcg-set">
-            cdr·26 <b>{me.id.slice(-4)}</b>
-          </span>
-          <span className="tcg-bar" aria-hidden="true">
-            <i style={{ width: `${Math.max(2, Math.round(at.progress * 100))}%` }} />
-          </span>
-          <span className="tcg-rarity">
-            {at.tier} <span aria-hidden="true">{RARITY[at.tier]}</span>
-          </span>
-        </footer>
       </div>
 
       <p className="muted small">

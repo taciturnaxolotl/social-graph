@@ -219,14 +219,25 @@ Level is `1 + √(answers / 5)`, so the thresholds run 5, 20, 45, 80, 125, 180,
 245, 320, 405. Quadratic on purpose: linear makes level 40 as cheap as level 2
 and the number stops meaning anything, exponential strands you at 6 forever.
 
+The layout is built from photographs of Base Set rather than from memory,
+which turned out to matter. Two earlier attempts were a white panel with a
+thin coloured border and a lot of air, and a real card is the opposite of all
+three: a thick gold stock around a body that is *entirely* tinted, divided
+into nine narrow bands, packed with small print. The colour is the interior,
+not a line around the edge, and the density is not clutter — it is the charm.
+So: a stage strip, a name plate with the big red number where HP goes, a
+bronze-framed art window, a species line, a move list with energy pips scaled
+by order of magnitude, three labelled columns where weakness and retreat cost
+go, a flavour band, and micro-print along the bottom.
+
 Three things make one card differ from another. The **school** you are in
 picks the colour and the type mark, derived from your major or your
-department — ten of them, and everything in the stylesheet hangs off one
-`--hue`, so ten schools cost ten lines rather than ten palettes. The **level**
-picks the finish, and each tier differs at rest and not only under a pointer,
-because a reward you can only see by hovering is no reward on a phone. And two
-things you **choose**: a frame colour, more of which unlock as you go, and a
-line of your own under the art.
+department — ten of them, and everything hangs off one `--hue`, so ten schools
+cost ten lines rather than ten palettes. The **level** picks the finish, and
+each tier differs at rest and not only under a pointer, because a reward you
+can only see by hovering is no reward on a phone. And two things you
+**choose**: a frame colour, more of which unlock as you go, and a line of your
+own under the art.
 
 ### withdrawing
 
