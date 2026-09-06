@@ -36,12 +36,12 @@ interface Props {
   /** A person chosen from search, who jumps the queue. */
   pinned: Candidate | null;
   /** The one running total, so the card and the account can never disagree. */
-  placed: number;
+  answered: number;
   onCount(): void;
   say(m: string, tone?: string): void;
 }
 
-export function Rate({ active, pinned, placed, onCount, say }: Props) {
+export function Rate({ active, pinned, answered, onCount, say }: Props) {
   const [, redraw] = useReducer((n: number) => n + 1, 0);
   /** Where the rater met this person, if they felt like saying. Cleared per card. */
   const [where, setWhere] = useState("");
@@ -383,7 +383,7 @@ export function Rate({ active, pinned, placed, onCount, say }: Props) {
         >
           undo {hints && <span className="kbd">z</span>}
         </button>
-        <span className="tally">{placed} placed</span>
+        <span className="tally">{answered} answered</span>
       </div>
     </>
   );

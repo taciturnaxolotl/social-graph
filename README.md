@@ -208,6 +208,26 @@ building would also undo the care above. The badge appears only when the
 answer is a person: who invited you, who has already placed you, who you are
 known by.
 
+### the card
+
+A prototype, and the one place in this app allowed to show off. Ten thousand
+people are being asked to do something repetitive for nothing, and a number
+that only goes up is the cheapest honest motivator there is — honest because
+you cannot level by answering badly, only by answering more.
+
+Level is `1 + √(answers / 5)`, so the thresholds run 5, 20, 45, 80, 125, 180,
+245, 320, 405. Quadratic on purpose: linear makes level 40 as cheap as level 2
+and the number stops meaning anything, exponential strands you at 6 forever.
+
+Three things make one card differ from another. The **school** you are in
+picks the colour and the type mark, derived from your major or your
+department — ten of them, and everything in the stylesheet hangs off one
+`--hue`, so ten schools cost ten lines rather than ten palettes. The **level**
+picks the finish, and each tier differs at rest and not only under a pointer,
+because a reward you can only see by hovering is no reward on a phone. And two
+things you **choose**: a frame colour, more of which unlock as you go, and a
+line of your own under the art.
+
 ### withdrawing
 
 Anybody can leave, from their own page, without asking. It destroys everything
@@ -314,10 +334,11 @@ hints disappear, and a search result opens its scale below the name when you
 tap it rather than trying to fit eleven buttons across a 390px screen — which
 works out at fourteen pixels each, and fourteen pixels is not a button.
 
-There is one page, and it is the loop. The app says *place*, never *rate*:
-the database records ratings because that is what an edge weight is called in
-the literature, but nobody wants to be told their classmates are rating them.
-The word is for products and it reads as a verdict. Search sits above the card
+There is one page, and it is the loop. The word everywhere above the database
+is *answer*: the table records ratings because that is what an edge weight is
+called in the literature, but the thing a person does here is answer a
+question — including the answer "never heard of them", which is neither a
+rating nor a placement. Two vocabularies for one action is worse than either. Search sits above the card
 rather than behind a tab, because looking somebody up is the same task as
 rating them: you thought of a person, or you want to change an answer, and
 either way it ends in pressing a number. Typing swaps the card for the

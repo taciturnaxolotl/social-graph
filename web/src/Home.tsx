@@ -47,11 +47,11 @@ export function facts(person: Candidate): string {
 }
 
 export function Home({
-  placed,
+  answered,
   onCount,
   say,
 }: {
-  placed: number;
+  answered: number;
   onCount(): void;
   say(m: string, tone?: string): void;
 }) {
@@ -144,7 +144,7 @@ export function Home({
       {/* Hidden, not unmounted: the queue, the undo history and the outbox all
           live in here, and a search should not cost you any of them. */}
       <div hidden={searching}>
-        <Rate active={!searching} pinned={pinned} placed={placed} onCount={onCount} say={say} />
+        <Rate active={!searching} pinned={pinned} answered={answered} onCount={onCount} say={say} />
       </div>
 
       {searching && (

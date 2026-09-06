@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { clusterOf, displayName, searchKey, segmentOf } from "../scripts/seed";
-import { costOf, levelFor, standing, tierFor } from "../shared/schema";
+import { ACCENTS, costOf, levelFor, SCHOOLS, schoolOf, standing, tierFor } from "../shared/schema";
 import { admissible, claims, packState, unpackState } from "../worker/auth";
 import { safeKey, sniff } from "../worker/photos";
 import { blend, NEARBY_SHARE, RANDOM_SHARE, type Tier } from "../worker/queue";
@@ -272,4 +272,31 @@ test("tiers arrive in order and stop at legendary", () => {
     "legendary",
     "legendary",
   ]);
+});
+
+test("a school is found from a major, a truncated department, or neither", () => {
+  expect(schoolOf("Cyber Operations", null)).toBe("engineering");
+  // The directory truncates mid-word; matching on fragments is the point.
+  expect(schoolOf(null, "Engineering and Computer Scien")).toBe("engineering");
+  expect(schoolOf(null, "Science & Math")).toBe("science");
+  expect(schoolOf("Nursing", "School of Pharmacy")).toBe("nursing");
+  expect(schoolOf(null, "School of Pharmacy")).toBe("health");
+  expect(schoolOf("Biblical Studies", null)).toBe("bible");
+  expect(schoolOf(null, "School of Business Admin")).toBe("business");
+  // Food Service is a job, not a school, and gets the house colour.
+  expect(schoolOf(null, "Food Service")).toBe("cedarville");
+  expect(schoolOf(null, null)).toBe("cedarville");
+});
+
+test("every school and accent has a hue the stylesheet can use", () => {
+  for (const [key, school] of Object.entries(SCHOOLS)) {
+    expect(school.hue, key).toBeGreaterThanOrEqual(0);
+    expect(school.hue, key).toBeLessThan(360);
+    expect(school.mark.length, key).toBeGreaterThan(0);
+  }
+  // -1 is the sentinel for "follow your school", and only "school" may use it.
+  for (const [key, accent] of Object.entries(ACCENTS)) {
+    if (key !== "school") expect(accent.hue, key).toBeGreaterThanOrEqual(0);
+    expect(accent.from, key).toBeGreaterThanOrEqual(1);
+  }
 });

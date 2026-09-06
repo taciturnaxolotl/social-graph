@@ -142,7 +142,7 @@ export function App() {
         {status.text}
       </p>
       <main>
-        {tab === "people" && <Home placed={me.rated} onCount={refresh} say={say} />}
+        {tab === "people" && <Home answered={me.answers} onCount={refresh} say={say} />}
         {tab === "you" && <You me={me} refresh={refresh} say={say} />}
         {tab === "admin" && <Admin say={say} />}
       </main>

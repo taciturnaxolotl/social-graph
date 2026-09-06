@@ -98,6 +98,93 @@ export const TIER_UNLOCK: Record<Tier, string> = {
   legendary: "gold, and the art breaks the frame",
 };
 
+/**
+ * The type line, borrowed wholesale from every card game there has ever been.
+ *
+ * A card that looks identical for ten thousand people can only ever be so
+ * interesting. The school somebody belongs to is the one axis in this data
+ * that is both public, stable and visibly different — ten of them — so it
+ * gets a colour and a mark, and two people from different schools now hold
+ * recognisably different objects.
+ *
+ * Derived, never stored: the client already has the major and the department,
+ * and a column would only be a third copy of the same fact.
+ */
+export interface School {
+  label: string;
+  /** oklch hue angle. Chroma and lightness are the stylesheet's business. */
+  hue: number;
+  mark: string;
+}
+
+export const SCHOOLS: Record<string, School> = {
+  engineering: { label: "engineering & computer science", hue: 285, mark: "\u2726" },
+  science: { label: "science & mathematics", hue: 195, mark: "\u2b21" },
+  business: { label: "business", hue: 75, mark: "\u25c8" },
+  humanities: { label: "arts & humanities", hue: 15, mark: "\u2766" },
+  bible: { label: "biblical & theological studies", hue: 265, mark: "\u271d" },
+  health: { label: "allied health & psychology", hue: 25, mark: "\u271a" },
+  nursing: { label: "nursing", hue: 350, mark: "\u2719" },
+  education: { label: "education & social work", hue: 55, mark: "\u2735" },
+  rotc: { label: "military science", hue: 130, mark: "\u2605" },
+  cedarville: { label: "cedarville", hue: 160, mark: "\u25c6" },
+};
+
+export type SchoolKey = keyof typeof SCHOOLS;
+
+/**
+ * Which school a person belongs to, from whatever they have.
+ *
+ * The self-reported major first, then the directory's department, which is
+ * spelled inconsistently and sometimes truncated mid-word — "Engineering and
+ * Computer Scien" is a real value — so this matches on fragments rather than
+ * on equality.
+ */
+export function schoolOf(major: string | null, department: string | null): SchoolKey {
+  const text = `${major ?? ""} ${department ?? ""}`.toLowerCase();
+  const has = (...needles: string[]) => needles.some((n) => text.includes(n));
+
+  if (has("nursing")) return "nursing";
+  if (has("engineering", "computer scien", "cyber", "software", "information tech"))
+    return "engineering";
+  if (has("bibl", "theolog", "ministr", "preach", "missions")) return "bible";
+  if (has("pharm", "allied health", "psycholog", "athletic training", "pre-med", "physician"))
+    return "health";
+  if (has("business", "account", "market", "finance", "economic", "management")) return "business";
+  if (has("educat", "social work", "teaching")) return "education";
+  if (has("military science", "rotc")) return "rotc";
+  if (has("science", "math", "biolog", "chem", "physics", "geolog")) return "science";
+  if (has("art", "human", "english", "music", "history", "theatre", "communicat", "language"))
+    return "humanities";
+  return "cedarville";
+}
+
+/**
+ * Frames you can put your card in, some of them earned.
+ *
+ * The default is your school's colour, so a card has a personality before
+ * anybody touches a setting. The rest unlock as you go, which is the point:
+ * a customisation you already had is not a reason to come back.
+ */
+export interface Accent {
+  label: string;
+  hue: number;
+  from: number;
+}
+
+export const ACCENTS: Record<string, Accent> = {
+  school: { label: "your school", hue: -1, from: 1 },
+  slate: { label: "slate", hue: 250, from: 1 },
+  moss: { label: "moss", hue: 150, from: 3 },
+  clay: { label: "clay", hue: 40, from: 3 },
+  plum: { label: "plum", hue: 320, from: 5 },
+  ice: { label: "ice", hue: 220, from: 5 },
+  ember: { label: "ember", hue: 20, from: 7 },
+  gold: { label: "gold", hue: 85, from: 10 },
+};
+
+export const MAX_FLAVOUR = 60;
+
 export interface Standing {
   level: number;
   tier: Tier;
@@ -126,12 +213,22 @@ export interface Me extends Person {
   dorm: string | null;
   invitedBy: string | null;
   inviteCode: string;
-  rated: number;
-  ratedBy: number;
+  /*
+   * "answers", not "placed" and not "rated". The database records ratings
+   * because that is what an edge weight is called in the literature, but the
+   * thing a person does here is answer a question — including the answer
+   * "never heard of them", which is neither a rating nor a placement.
+   */
+  answers: number;
+  knownBy: number;
   /** Placements you bothered to write a note on. */
   notes: number;
   /** People who joined through your link. */
   recruited: number;
+  /** A key from ACCENTS, or null to follow your school. */
+  accent: string | null;
+  /** A line of your own under the art. */
+  flavour: string | null;
   admin: boolean;
 }
 

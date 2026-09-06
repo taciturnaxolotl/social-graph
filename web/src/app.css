@@ -879,22 +879,21 @@ nav button.on {
  *
  * A trading card, and the one place in this app allowed to show off.
  *
- * The proportion is five sevenths, which is the shape of every card anybody
- * has ever held, and most of why this reads as a card rather than a panel with
- * a photograph in it. The rest is anatomy: a name plate, a portrait window
- * with a hairline inside the frame, small print under the art, a move list,
- * and a rarity mark in the corner.
+ * Everything below hangs off a single --hue set per card: the school you are
+ * in, or the accent you picked. One number, and the frame, the mat, the
+ * ground, the type mark and the progress bar all move together — which is why
+ * ten schools cost ten lines rather than ten palettes.
  *
- * Each tier must differ *at rest*, not only under the pointer. The first
- * attempt gated the whole difference on a hover effect, so a rare card and an
- * uncommon one were the same picture until you touched them — which is no
- * reward at all on a phone.
+ * The tier decides the *finish*, not the colour, and each one must differ at
+ * rest and not only under a pointer. The first attempt gated the whole
+ * difference on a hover effect, so a rare card and an uncommon one were the
+ * same picture until you touched them, which is no reward at all on a phone.
  *
- *   common      grey frame, plain
- *   uncommon    the frame takes a colour
- *   rare        silver frame, a standing diagonal foil band
- *   holo        chromatic frame, the whole card shimmers and tilts
- *   legendary   gold on near-black, and the art fills the frame
+ *   common      flat, a hairline frame
+ *   uncommon    the frame takes the colour
+ *   rare        a standing foil band across the art
+ *   holo        the band goes chromatic and the card tilts
+ *   legendary   gold on near-black, everything lit
  */
 
 .card-stage {
@@ -906,6 +905,12 @@ nav button.on {
 }
 
 .tcg {
+  --edge: oklch(0.68 0.14 var(--hue, 160));
+  --mat: oklch(0.94 0.045 var(--hue, 160));
+  --ink: var(--foreground);
+  --dim: var(--muted-foreground);
+  --rule: var(--border);
+
   position: relative;
   isolation: isolate;
   display: grid;
@@ -914,13 +919,13 @@ nav button.on {
   width: min(20rem, 100%);
   aspect-ratio: 5 / 7;
   padding: 0.625rem;
-  border: 0.375rem solid var(--tcg-edge, oklch(0.86 0.005 286));
+  border: 0.375rem solid var(--edge);
   border-radius: 0.875rem;
-  background: var(--tcg-ground, var(--card));
-  color: var(--tcg-ink, var(--foreground));
+  background: var(--ground, var(--card));
+  color: var(--ink);
   box-shadow:
-    inset 0 0 0 1px oklch(0 0 0 / 8%),
-    0 2px 10px oklch(0 0 0 / 10%);
+    inset 0 0 0 1px oklch(0 0 0 / 10%),
+    0 2px 12px oklch(0 0 0 / 12%);
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transform-style: preserve-3d;
   transition:
@@ -929,22 +934,37 @@ nav button.on {
   will-change: transform;
 }
 
-/* The finish is its own layer, so a tier can change it without touching the
-   card's background or its contents. */
+/*
+ * The finish, as its own layer so a tier can change it without touching the
+ * card's background or its contents. Masked to fade out before the stat
+ * block, which is where the older sets put holo and the only way the numbers
+ * stay crisp — a sheen across the whole face tints every glyph it crosses.
+ */
 .tcg-sheen {
   position: absolute;
   inset: 0;
+  z-index: 2;
   border-radius: 0.5rem;
   pointer-events: none;
   opacity: 0;
-  z-index: 2;
   transition: opacity 260ms ease;
-  /*
-   * Foil over the art and gone by the stat block, which is where the older
-   * sets put it and also the only way the numbers stay crisp. A sheen across
-   * the whole face tints every glyph it crosses.
-   */
   mask-image: linear-gradient(to bottom, #000 0 58%, transparent 76%);
+}
+
+/* Paper, not screen. Two per cent of noise is the difference. */
+.tcg-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 0.5rem;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/>\
+<feColorMatrix type='saturate' values='0'/></filter>\
+<rect width='120' height='120' filter='url(%23n)' opacity='.16'/></svg>");
 }
 
 .tcg-plate {
@@ -961,8 +981,7 @@ nav button.on {
 }
 
 .tcg-lv {
-  flex: 1;
-  color: var(--tcg-dim, var(--muted-foreground));
+  color: var(--dim);
   font: 500 0.625rem / 1 var(--sans);
   text-transform: uppercase;
   white-space: nowrap;
@@ -971,7 +990,16 @@ nav button.on {
 .tcg-lv b {
   margin-left: 0.125rem;
   font: 700 0.9375rem var(--mono);
-  color: var(--tcg-ink, var(--foreground));
+  color: var(--ink);
+}
+
+/* The type mark: the school, in the school's colour. */
+.tcg-type {
+  flex: 1;
+  color: var(--edge);
+  font-size: 0.875rem;
+  line-height: 1;
+  text-shadow: 0 0 10px color-mix(in oklab, var(--edge) 40%, transparent);
 }
 
 .tcg-hp {
@@ -982,7 +1010,7 @@ nav button.on {
 }
 
 .tcg-hp small {
-  color: var(--tcg-dim, var(--muted-foreground));
+  color: var(--dim);
   font-size: 0.5625rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1000,25 +1028,45 @@ nav button.on {
   border-radius: 0.375rem;
   /* The hairline inside the frame. Cards have had it since 1996. */
   box-shadow:
-    inset 0 0 0 1px oklch(0 0 0 / 22%),
-    inset 0 0 0 3px var(--tcg-mat, oklch(0.93 0.005 286));
-  background: var(--muted);
+    inset 0 0 0 1px oklch(0 0 0 / 25%),
+    inset 0 0 0 3px var(--mat);
+  background: radial-gradient(circle at 50% 30%, var(--mat), var(--muted));
 }
 
 .tcg-art .avatar {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   border-radius: 0;
   object-fit: cover;
   font-size: 3.5rem;
+  background: none;
+}
+
+/*
+ * The set emblem, in the corner of the art the way a card's always is. Above
+ * the photograph rather than behind it, because behind it only ever showed on
+ * the cards that had no photograph — which is the opposite of a house mark.
+ */
+.tcg-cedar {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.4rem;
+  z-index: 2;
+  width: 1.375rem;
+  height: auto;
+  fill: oklch(1 0 0 / 88%);
+  filter: drop-shadow(0 1px 2px oklch(0 0 0 / 55%));
 }
 
 .tcg-print {
   margin: 0;
-  color: var(--tcg-dim, var(--muted-foreground));
+  color: var(--dim);
   font-size: 0.6875rem;
   font-style: italic;
   text-align: center;
+  overflow-wrap: break-word;
 }
 
 /* The move list, which is the part of a card people actually read. */
@@ -1027,8 +1075,8 @@ nav button.on {
   gap: 0.125rem;
   margin: 0;
   padding: 0.375rem 0;
-  border-top: 1px solid var(--tcg-rule, var(--border));
-  border-bottom: 1px solid var(--tcg-rule, var(--border));
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .tcg-moves div {
@@ -1055,6 +1103,19 @@ nav button.on {
   gap: 0.5rem;
 }
 
+/* Set code and card number. Pure flavour, and cards have always had it. */
+.tcg-set {
+  color: var(--dim);
+  font: 500 0.5rem / 1 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tcg-set b {
+  color: var(--ink);
+}
+
 .tcg-bar {
   flex: 1;
   height: 0.25rem;
@@ -1067,52 +1128,46 @@ nav button.on {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--tcg-edge, currentcolor);
+  background: var(--edge);
   transition: width 400ms cubic-bezier(0.2, 0, 0.2, 1);
 }
 
 .tcg-rarity {
-  color: var(--tcg-dim, var(--muted-foreground));
+  color: var(--dim);
   font-size: 0.5625rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
-/* uncommon ---------------------------------------------------------------- */
-
-.tcg.uncommon {
-  --tcg-edge: oklch(0.68 0.13 163);
-  --tcg-mat: oklch(0.94 0.03 163);
+/* common: the colour is only a whisper, so levelling up is visibly a gain. */
+.tcg.common {
+  --edge: oklch(0.86 0.02 var(--hue, 160));
+  --mat: oklch(0.95 0.012 var(--hue, 160));
 }
 
-/* rare: a silver frame and a foil band that is there without the pointer ---- */
-
+/* rare: a foil band that is there without the pointer. */
 .tcg.rare {
-  --tcg-edge: oklch(0.76 0.02 250);
-  --tcg-mat: oklch(0.93 0.015 250);
-  --tcg-ground: linear-gradient(150deg, oklch(0.98 0.012 250), var(--card) 42%);
+  --ground: linear-gradient(150deg, oklch(0.98 0.02 var(--hue, 160)), var(--card) 42%);
 }
 
 .tcg.rare .tcg-sheen {
-  opacity: 0.4;
+  opacity: 0.42;
   background:
     linear-gradient(
       104deg,
       transparent 38%,
       oklch(1 0 0 / 85%) 46%,
-      oklch(0.9 0.06 250 / 60%) 50%,
+      oklch(0.9 0.07 var(--hue, 160) / 60%) 50%,
       transparent 58%
     ),
     radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 55%), transparent 45%);
   mix-blend-mode: overlay;
 }
 
-/* holo -------------------------------------------------------------------- */
-
+/* holo: the band goes chromatic, and the card leans towards the cursor. */
 .tcg.holo {
-  --tcg-edge: oklch(0.64 0.19 295);
-  --tcg-mat: oklch(0.93 0.05 295);
-  --tcg-ground: linear-gradient(150deg, oklch(0.97 0.03 295), var(--card) 45%);
+  --ground: linear-gradient(150deg, oklch(0.97 0.04 var(--hue, 160)), var(--card) 45%);
 }
 
 .tcg.holo .tcg-sheen {
@@ -1121,28 +1176,39 @@ nav button.on {
     radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 60%), transparent 42%),
     repeating-linear-gradient(
       102deg,
-      oklch(0.8 0.19 20 / 40%) 0 3%,
-      oklch(0.84 0.18 90 / 40%) 3% 6%,
-      oklch(0.82 0.17 160 / 40%) 6% 9%,
-      oklch(0.76 0.19 250 / 40%) 9% 12%,
-      oklch(0.74 0.21 320 / 40%) 12% 15%
+      oklch(0.8 0.19 calc(var(--hue, 160) - 60) / 40%) 0 3%,
+      oklch(0.84 0.18 var(--hue, 160) / 40%) 3% 6%,
+      oklch(0.82 0.17 calc(var(--hue, 160) + 60) / 40%) 6% 9%,
+      oklch(0.76 0.19 calc(var(--hue, 160) + 120) / 40%) 9% 12%,
+      oklch(0.74 0.21 calc(var(--hue, 160) + 180) / 40%) 12% 15%
     );
   mix-blend-mode: color-dodge;
 }
 
-/* legendary: gold on near black, and the art stops being a window ---------- */
-
+/*
+ * legendary: gold on near black, whatever hue the card was. Reaching the top
+ * should look like the top, not like a brighter version of your school.
+ */
 .tcg.legendary {
-  --tcg-edge: oklch(0.8 0.14 85);
-  --tcg-mat: oklch(0.8 0.14 85);
-  --tcg-ink: oklch(0.97 0.01 85);
-  --tcg-dim: oklch(0.78 0.05 85);
-  --tcg-rule: oklch(0.8 0.14 85 / 35%);
-  --tcg-ground: linear-gradient(160deg, oklch(0.26 0.03 85), oklch(0.16 0.01 285) 55%);
+  --edge: oklch(0.8 0.14 85);
+  --mat: oklch(0.8 0.14 85);
+  --ink: oklch(0.97 0.01 85);
+  --dim: oklch(0.78 0.05 85);
+  --rule: oklch(0.8 0.14 85 / 35%);
+  --ground: linear-gradient(160deg, oklch(0.26 0.03 85), oklch(0.16 0.01 285) 55%);
   box-shadow:
     inset 0 0 0 1px oklch(0.8 0.14 85 / 45%),
-    0 2px 10px oklch(0 0 0 / 20%),
-    0 0 34px oklch(0.8 0.14 85 / 30%);
+    0 2px 12px oklch(0 0 0 / 22%),
+    0 0 36px oklch(0.8 0.14 85 / 30%);
+}
+
+.tcg.legendary .tcg-art {
+  background: oklch(0.2 0.02 285);
+}
+
+.tcg.legendary .tcg-grain {
+  mix-blend-mode: overlay;
+  opacity: 0.5;
 }
 
 /*
@@ -1163,8 +1229,50 @@ nav button.on {
   mix-blend-mode: soft-light;
 }
 
-.tcg.legendary .tcg-art {
-  box-shadow: inset 0 0 0 1px oklch(0.8 0.14 85 / 60%);
+/* --- choosing a frame ----------------------------------------------------- */
+
+.accents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.accent {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: oklch(0.7 0.15 var(--hue, 160));
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.accent.school {
+  background: conic-gradient(
+    oklch(0.7 0.15 285),
+    oklch(0.7 0.15 15),
+    oklch(0.7 0.15 75),
+    oklch(0.7 0.15 195),
+    oklch(0.7 0.15 285)
+  );
+}
+
+.accent:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.accent.on {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--foreground);
+}
+
+.accent:disabled {
+  opacity: 0.25;
+  cursor: default;
 }
 
 /*

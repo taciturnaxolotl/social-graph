@@ -11,7 +11,7 @@
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import type { Me, Settings } from "../shared/schema";
-import { isSegment, MAX_CONTEXT, validStrength } from "../shared/schema";
+import { ACCENTS, isSegment, MAX_CONTEXT, MAX_FLAVOUR, validStrength } from "../shared/schema";
 import {
   admissible,
   configured,
@@ -53,10 +53,12 @@ async function meBody(env: Env, row: Row): Promise<Me> {
     dorm: row.dorm,
     invitedBy: row.invited_by,
     inviteCode: code,
-    rated: tally.rated,
-    ratedBy: tally.ratedBy,
+    answers: tally.answers,
+    knownBy: tally.knownBy,
     notes: tally.notes,
     recruited: tally.recruited,
+    accent: row.card_accent,
+    flavour: row.card_flavour,
     admin: isAdmin(env, row.email),
   };
 }
@@ -190,6 +192,14 @@ app.patch("/api/me", async (c) => {
     name: typeof patch.name === "string" ? patch.name.trim().slice(0, 80) : undefined,
     major: text(patch.major, 80),
     dorm: text(patch.dorm, 60),
+    // An accent that is not one of ours is not an accent.
+    accent:
+      patch.accent === null
+        ? null
+        : typeof patch.accent === "string" && patch.accent in ACCENTS
+          ? patch.accent
+          : undefined,
+    flavour: text(patch.flavour, MAX_FLAVOUR),
   });
   return c.json(await meBody(c.env, (await db.person(c.env.DB, who.id))!));
 });
