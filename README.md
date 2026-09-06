@@ -219,25 +219,29 @@ Level is `1 + √(answers / 5)`, so the thresholds run 5, 20, 45, 80, 125, 180,
 245, 320, 405. Quadratic on purpose: linear makes level 40 as cheap as level 2
 and the number stops meaning anything, exponential strands you at 6 forever.
 
-The layout is built from photographs of Base Set rather than from memory,
-which turned out to matter. Two earlier attempts were a white panel with a
-thin coloured border and a lot of air, and a real card is the opposite of all
-three: a thick gold stock around a body that is *entirely* tinted, divided
-into nine narrow bands, packed with small print. The colour is the interior,
-not a line around the edge, and the density is not clutter — it is the charm.
-So: a stage strip, a name plate with the big red number where HP goes, a
-bronze-framed art window, a species line, a move list with energy pips scaled
-by order of magnitude, three labelled columns where weakness and retreat cost
-go, a flavour band, and micro-print along the bottom.
+It is a specimen plate, of the kind a herbarium sheet carries: cream stock,
+hairline rules, a mounted photograph held by four corners, small caps, dot
+leaders, a collection number.
 
-Three things make one card differ from another. The **school** you are in
-picks the colour and the type mark, derived from your major or your
-department — ten of them, and everything hangs off one `--hue`, so ten schools
-cost ten lines rather than ten palettes. The **level** picks the finish, and
-each tier differs at rest and not only under a pointer, because a reward you
-can only see by hovering is no reward on a phone. And two things you
-**choose**: a frame colour, more of which unlock as you go, and a line of your
-own under the art.
+It was a Pokémon card twice first, and both times it was cosplay rather than
+design — a gold border with no reason to be gold, energy pips for a mechanic
+that does not exist, weakness and retreat columns repurposed as trivia.
+Decoration pretending to be information, in four hues that had nothing to do
+with each other or with the rest of the app. A plate is the same idea done
+honestly: every line on it is a real fact about a specimen, and none of it is
+borrowed.
+
+Levelling changes what the card appears to be *made of* rather than repainting
+it — plain stock, then a printed rule, a blind-embossed seal, a gilt edge, a
+foil stamp. The paper is the same colour at level one and level ten, which is
+what keeps a reward from reading as a costume change. Level is
+`1 + √(answers / 5)`, so the thresholds run 5, 20, 45, 80, 125, 180, 245, 320,
+405: quadratic, because linear makes level 40 as cheap as level 2 and the
+number stops meaning anything.
+
+The single hue on the card is the ink, taken from the school your major or
+department puts you in — ten of them — or from a frame colour you pick, more
+of which unlock as you go. You can also write the line under the label.
 
 ### withdrawing
 

@@ -43,6 +43,9 @@
 
   --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
+  /* One serif, and only the card uses it. A specimen label is set in a face
+     that was cut for printing on paper, not for a screen. */
+  --serif: "EB Garamond", "Iowan Old Style", Georgia, serif;
 }
 
 * {
@@ -877,15 +880,18 @@ nav button.on {
 
 /* --- the card ------------------------------------------------------------
  *
- * Built from photographs of Base Set rather than from memory, which turned out
- * to matter. The first two attempts were a white panel with a thin coloured
- * border and a lot of air. A real card is the opposite of all three: a thick
- * gold stock around a body that is *entirely* tinted, divided into nine or so
- * narrow bands, packed with small print. The colour is the interior, not a
- * line around the edge, and the density is not clutter — it is the charm.
+ * A specimen plate. It was a Pokémon card twice and both times it was cosplay:
+ * a gold border with no reason to be gold, energy pips for a mechanic that
+ * does not exist, four hues that had nothing to do with each other or with the
+ * rest of the app.
  *
- * One --hue per card drives the lot, so ten schools cost ten lines. The tier
- * changes the finish and the richness of the stock, never the hue.
+ * This is the same idea done honestly — cream stock, hairline rules, a mounted
+ * photograph, small caps, dot leaders, a collection number. Everything on it
+ * is a real fact about a specimen, and none of it is borrowed.
+ *
+ * The tier changes the *material*, never the colour: plain stock, a printed
+ * rule, a blind-embossed seal, a gilt edge, a foil stamp. The one hue on the
+ * card is the ink, taken from your school or your own choice.
  */
 
 .card-stage {
@@ -893,409 +899,347 @@ nav button.on {
   justify-items: center;
   gap: 0.75rem;
   margin-top: 0.5rem;
-  perspective: 1100px;
+  perspective: 1200px;
 }
 
-/* The stock: gold, always, the way every card in the set is. */
-.tcg {
-  --edge: oklch(0.62 0.15 var(--hue, 160));
-  --ink: oklch(0.22 0.02 var(--hue, 160));
-  --dim: oklch(0.45 0.03 var(--hue, 160));
-  --panel: oklch(0.96 0.02 var(--hue, 160));
-  --rule: oklch(0.55 0.06 var(--hue, 160) / 45%);
+.plate {
+  --ink: oklch(0.34 0.02 60);
+  --faint: oklch(0.56 0.015 60);
+  --rule: oklch(0.78 0.015 60);
+  --accent: oklch(0.5 0.11 var(--hue, 160));
+  --paper: oklch(0.975 0.008 85);
 
-  position: relative;
-  width: min(20rem, 100%);
-  aspect-ratio: 5 / 7;
-  padding: 0.5rem 0.4375rem;
-  border-radius: 0.75rem;
-  background: linear-gradient(
-    150deg,
-    oklch(0.93 0.11 92),
-    oklch(0.86 0.13 82) 38%,
-    oklch(0.95 0.09 95)
-  );
-  box-shadow:
-    inset 0 0 0 1px oklch(0.45 0.09 70 / 55%),
-    0 2px 14px oklch(0 0 0 / 18%);
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transform-style: preserve-3d;
-  transition:
-    transform 260ms cubic-bezier(0.2, 0, 0.2, 1),
-    box-shadow 260ms ease;
-  will-change: transform;
-}
-
-/* The body, tinted top to bottom. Never white. */
-.tcg-body {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-rows: auto auto 1fr auto auto auto auto auto;
-  gap: 0.1875rem;
-  height: 100%;
-  padding: 0.3125rem 0.375rem 0.375rem;
-  border-radius: 0.375rem;
-  background: linear-gradient(
-    170deg,
-    oklch(0.93 0.06 var(--hue, 160)),
-    oklch(0.87 0.09 var(--hue, 160)) 45%,
-    oklch(0.93 0.05 var(--hue, 160))
-  );
-  box-shadow: inset 0 0 0 1px oklch(0.35 0.06 var(--hue, 160) / 45%);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.5rem;
+  width: min(20rem, 100%);
+  aspect-ratio: 5 / 7;
+  padding: 0.8125rem 0.9375rem 0.75rem;
+  border-radius: 0.125rem;
+  background: var(--paper);
   color: var(--ink);
+  font-family: var(--serif);
+  box-shadow:
+    0 0 0 1px oklch(0.8 0.015 70),
+    0 1px 1px oklch(0 0 0 / 6%),
+    0 8px 24px oklch(0.3 0.02 60 / 10%);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition:
+    transform 300ms cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 300ms ease;
 }
 
-.tcg-sheen {
+/* Laid paper, not a flat fill. Two per cent of it is the whole difference. */
+.plate::before {
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 4;
-  border-radius: 0.375rem;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 260ms ease;
-  mask-image: linear-gradient(to bottom, #000 0 52%, transparent 70%);
-}
-
-/* Paper, not screen. */
-.tcg-grain {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  border-radius: 0.375rem;
+  /*
+   * Behind the content but in front of the paper. Negative, because the plate
+   * isolates, so this cannot escape below the card's own background — and
+   * because a blanket `position: relative` on the children to out-stack it
+   * turned the visually-hidden line into a grid item and shifted every row.
+   */
+  z-index: -1;
+  border-radius: inherit;
   pointer-events: none;
   opacity: 0.5;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
-<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/>\
+<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/>\
 <feColorMatrix type='saturate' values='0'/></filter>\
-<rect width='120' height='120' filter='url(%23n)' opacity='.2'/></svg>");
+<rect width='140' height='140' filter='url(%23n)' opacity='.14'/></svg>");
 }
 
-/* Where a card says STAGE 1 and what it evolves from. */
-.tcg-stage {
+/* Only gilt and foil catch the light. */
+.plate-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.plate-head {
   display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin: 0;
-  font-size: 0.5rem;
-  letter-spacing: 0.02em;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.3125rem;
+  border-bottom: 1px solid var(--rule);
+  color: var(--faint);
+  font: 500 0.625rem / 1 var(--sans);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.tcg-stage b {
-  padding: 0.0625rem 0.25rem;
-  border-radius: 0.125rem;
-  background: var(--ink);
-  color: var(--panel);
-  font: 700 0.5rem / 1.4 var(--mono);
-}
-
-.tcg-stage span {
-  color: var(--dim);
-}
-
-.tcg-plate {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3125rem;
-}
-
-.tcg-name {
-  flex: 1;
-  min-width: 0;
-  font: 800 1.0625rem / 1.1 var(--sans);
-  letter-spacing: -0.03em;
-  overflow-wrap: break-word;
-}
-
-/* The big red number, top right, exactly where HP goes. */
-.tcg-hp {
-  display: flex;
-  align-items: baseline;
-  gap: 0.125rem;
-  color: oklch(0.52 0.2 25);
-  font: 800 1.25rem / 1 var(--sans);
-  font-variant-numeric: tabular-nums;
-}
-
-.tcg-hp small {
-  font: 700 0.4375rem / 1 var(--sans);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.tcg-type {
-  display: grid;
-  place-items: center;
-  width: 1.0625rem;
-  height: 1.0625rem;
-  border-radius: 999px;
-  background: radial-gradient(circle at 35% 30%, oklch(0.96 0.02 92), oklch(0.78 0.13 85));
-  box-shadow: inset 0 0 0 1px oklch(0.4 0.08 70 / 60%);
-  color: var(--edge);
-  font-size: 0.625rem;
-  line-height: 1;
-}
-
-/* The art window, with the bronze frame every card has around it. */
-.tcg-art {
+/* The photograph, held down by four corners. */
+.plate-mount {
   position: relative;
-  overflow: hidden;
   min-height: 0;
-  border-radius: 0.125rem;
-  box-shadow:
-    0 0 0 1px oklch(0.35 0.08 70 / 70%),
-    0 0 0 3px oklch(0.82 0.11 85),
-    0 0 0 4px oklch(0.4 0.08 70 / 55%);
-  background: radial-gradient(
-    circle at 50% 30%,
-    oklch(0.9 0.08 var(--hue, 160)),
-    oklch(0.72 0.1 var(--hue, 160))
-  );
+  background: oklch(0.92 0.01 70);
+  box-shadow: inset 0 0 0 1px oklch(0.72 0.02 70);
 }
 
-.tcg-art .avatar {
-  position: relative;
-  z-index: 1;
+.plate-mount .avatar {
   width: 100%;
   height: 100%;
   border-radius: 0;
   object-fit: cover;
-  font-size: 3.25rem;
   background: none;
+  font-family: var(--serif);
+  font-size: 3.25rem;
+  color: var(--faint);
 }
 
-.tcg-cedar {
+/* The corners themselves: a small triangle at each. */
+.plate-mount i {
   position: absolute;
-  right: 0.3rem;
-  bottom: 0.3rem;
-  z-index: 2;
-  width: 1.125rem;
-  height: auto;
-  fill: oklch(1 0 0 / 88%);
-  filter: drop-shadow(0 1px 2px oklch(0 0 0 / 55%));
+  width: 0.75rem;
+  height: 0.75rem;
+  background: linear-gradient(135deg, oklch(0.86 0.02 70) 50%, transparent 50%);
 }
 
-/* Species, height and weight, in one narrow band under the art. */
-.tcg-species {
+.plate-mount i:nth-of-type(1) {
+  top: 0;
+  left: 0;
+}
+
+.plate-mount i:nth-of-type(2) {
+  top: 0;
+  right: 0;
+  transform: rotate(90deg);
+}
+
+.plate-mount i:nth-of-type(3) {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+}
+
+.plate-mount i:nth-of-type(4) {
+  bottom: 0;
+  left: 0;
+  transform: rotate(270deg);
+}
+
+.plate-label h3 {
   margin: 0;
-  padding: 0.0625rem 0.25rem;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  background: color-mix(in oklab, var(--panel) 70%, transparent);
-  font: italic 600 0.5rem / 1.5 var(--sans);
-}
-
-/* The move list, on the cream panel that carries the text half of a card. */
-.tcg-moves {
-  display: grid;
-  gap: 0.0625rem;
-  margin: 0;
-  padding: 0.25rem 0.3125rem;
-  border-radius: 0.1875rem;
-  background: var(--panel);
-  box-shadow: inset 0 0 0 1px oklch(0.5 0.05 var(--hue, 160) / 30%);
-}
-
-.tcg-moves div {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.tcg-moves div + div {
-  border-top: 1px solid var(--rule);
-  padding-top: 0.0625rem;
-}
-
-/* Energy pips. Order of magnitude, so the column has a rhythm. */
-.tcg-cost {
-  display: flex;
-  gap: 0.0625rem;
-  width: 1.75rem;
-  flex: none;
-}
-
-.tcg-cost i {
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: 999px;
-  background: radial-gradient(circle at 35% 30%, oklch(0.95 0.03 92), var(--edge));
-  box-shadow: inset 0 0 0 0.5px oklch(0.3 0.05 70 / 70%);
-}
-
-.tcg-moves dt {
-  flex: 1;
-  min-width: 0;
-  font: 700 0.625rem / 1.5 var(--sans);
-}
-
-.tcg-moves dd {
-  margin: 0;
-  font: 800 0.875rem / 1.4 var(--sans);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Weakness, resistance, retreat cost. */
-.tcg-bottom {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  padding: 0.0625rem 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  text-align: center;
-  font: 700 0.5625rem / 1.3 var(--sans);
-}
-
-.tcg-bottom span {
-  display: grid;
-  min-width: 0;
-}
-
-.tcg-bottom small {
-  color: var(--dim);
-  font: 500 0.4375rem / 1.3 var(--sans);
-  text-transform: uppercase;
+  font: 500 1.25rem / 1.05 var(--serif);
+  font-variant: small-caps;
   letter-spacing: 0.03em;
 }
 
-.tcg-bottom i {
-  font-style: normal;
-  color: var(--edge);
+.plate-species {
+  margin: 0.0625rem 0 0;
+  color: var(--accent);
+  font: italic 400 0.875rem / 1.25 var(--serif);
 }
 
-.tcg-flavour {
-  margin: 0;
-  padding: 0.0625rem 0.25rem;
-  border-radius: 0.125rem;
-  background: color-mix(in oklab, var(--panel) 55%, transparent);
-  font: italic 0.5625rem / 1.4 var(--sans);
-  text-align: center;
-  overflow-wrap: break-word;
-}
-
-/* The micro print along the very bottom. */
-.tcg-fine {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.375rem;
-  margin: 0;
-  color: var(--dim);
-  font: 500 0.4375rem / 1.3 var(--mono);
+.plate-coll {
+  margin: 0.125rem 0 0;
+  color: var(--faint);
+  font: 500 0.625rem / 1 var(--sans);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.tcg-fine b {
-  color: var(--ink);
+/* Dot leaders, because that is how a printed index reads. */
+.plate-rows {
+  display: grid;
+  gap: 0.0625rem;
+  margin: 0;
+  padding-top: 0.375rem;
+  border-top: 1px solid var(--rule);
 }
 
-.tcg-fine i {
-  font-style: normal;
-  color: var(--edge);
+.plate-rows div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
 }
 
-/* --- finishes ------------------------------------------------------------ */
-
-/* common: a duller stock, so gold is itself something you climb towards. */
-.tcg.common {
-  background: linear-gradient(
-    150deg,
-    oklch(0.9 0.03 92),
-    oklch(0.83 0.04 88) 40%,
-    oklch(0.9 0.03 95)
-  );
+.plate-rows dt {
+  font: 400 0.8125rem / 1.35 var(--serif);
 }
 
-.tcg.uncommon {
-  background: linear-gradient(
-    150deg,
-    oklch(0.92 0.07 92),
-    oklch(0.85 0.09 85) 40%,
-    oklch(0.93 0.06 95)
-  );
+.plate-rows dt::after {
+  content: "";
+  display: inline-block;
+  width: 0;
 }
 
-.tcg.rare .tcg-sheen {
+.plate-rows div::after {
+  content: "";
+  order: 1;
+  flex: 1;
+  height: 0.6875rem;
+  border-bottom: 1px dotted var(--rule);
+}
+
+.plate-rows dd {
+  order: 2;
+  margin: 0;
+  font: 500 0.875rem / 1.35 var(--serif);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.plate-flavour {
+  margin: 0;
+  color: var(--faint);
+  font: italic 400 0.75rem / 1.3 var(--serif);
+  overflow-wrap: break-word;
+}
+
+.plate-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+.plate-seal {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  color: var(--accent);
+}
+
+.plate-sprig {
+  width: 1.125rem;
+  height: auto;
+}
+
+.plate-level {
+  color: var(--faint);
+  font: 500 0.6875rem / 1 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.plate-level small {
+  font-size: inherit;
+  opacity: 0.65;
+}
+
+/* --- what the card is made of -------------------------------------------- */
+
+/* uncommon: a second rule under the header, and the sprig printed in ink. */
+.plate.uncommon .plate-head {
+  border-bottom-style: double;
+  border-bottom-width: 3px;
+}
+
+.plate.uncommon .plate-seal {
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+/* rare: the seal is blind embossed — pressed into the paper, no ink at all. */
+.plate.rare .plate-head {
+  border-bottom-style: double;
+  border-bottom-width: 3px;
+}
+
+.plate.rare .plate-seal {
+  color: oklch(0.7 0.02 70);
+  background: var(--paper);
+  box-shadow:
+    inset 0 1.5px 1px oklch(1 0 0 / 95%),
+    inset 0 -1.5px 3px oklch(0.5 0.03 70 / 70%),
+    inset 0 0 0 1px oklch(0.78 0.02 70),
+    0 1px 0 oklch(1 0 0 / 90%);
+}
+
+/* holo: a gilt edge, and the paper starts to catch the light. */
+.plate.holo {
+  box-shadow:
+    0 0 0 1px oklch(0.75 0.11 85),
+    0 0 0 4px var(--paper),
+    0 0 0 5px oklch(0.82 0.09 85),
+    0 1px 1px oklch(0 0 0 / 6%),
+    0 8px 24px oklch(0.4 0.06 70 / 14%);
+}
+
+.plate.holo .plate-seal {
+  color: oklch(0.62 0.12 85);
+  box-shadow:
+    inset 0 0 0 1px oklch(0.78 0.11 85),
+    inset 0 1px 1px oklch(1 0 0 / 80%);
+}
+
+.plate.holo .plate-sheen {
   opacity: 0.5;
-  background:
-    linear-gradient(
-      104deg,
-      transparent 38%,
-      oklch(1 0 0 / 85%) 46%,
-      oklch(0.9 0.07 var(--hue, 160) / 60%) 50%,
-      transparent 58%
-    ),
-    radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 55%), transparent 45%);
-  mix-blend-mode: overlay;
+  background: radial-gradient(
+    circle at var(--px, 50%) var(--py, 50%),
+    oklch(0.95 0.08 88 / 45%),
+    transparent 50%
+  );
+  mix-blend-mode: multiply;
 }
 
-.tcg.holo .tcg-sheen {
-  opacity: 0.5;
-  background:
-    radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 55%), transparent 42%),
-    repeating-linear-gradient(
-      102deg,
-      oklch(0.8 0.19 calc(var(--hue, 160) - 60) / 45%) 0 3%,
-      oklch(0.84 0.18 var(--hue, 160) / 45%) 3% 6%,
-      oklch(0.82 0.17 calc(var(--hue, 160) + 60) / 45%) 6% 9%,
-      oklch(0.76 0.19 calc(var(--hue, 160) + 120) / 45%) 9% 12%,
-      oklch(0.74 0.21 calc(var(--hue, 160) + 180) / 45%) 12% 15%
-    );
-  mix-blend-mode: color-dodge;
+/* legendary: the seal is foil stamped, and the stamp is what catches. */
+.plate.legendary {
+  box-shadow:
+    0 0 0 1px oklch(0.66 0.13 82),
+    0 0 0 4px var(--paper),
+    0 0 0 5px oklch(0.72 0.13 84),
+    0 1px 1px oklch(0 0 0 / 8%),
+    0 10px 30px oklch(0.4 0.08 70 / 18%);
 }
 
-/*
- * legendary: the body goes dark under the gold. Reaching the top should look
- * like the top, not a brighter version of your school.
- */
-.tcg.legendary {
-  --ink: oklch(0.96 0.02 88);
-  --dim: oklch(0.76 0.05 88);
-  --panel: oklch(0.26 0.03 var(--hue, 160));
-  --rule: oklch(0.8 0.14 85 / 40%);
-  --edge: oklch(0.83 0.13 85);
+.plate.legendary .plate-head,
+.plate.legendary .plate-rows,
+.plate.legendary .plate-foot {
+  border-color: oklch(0.74 0.09 84);
+}
+
+.plate.legendary .plate-head {
+  border-bottom-style: double;
+  border-bottom-width: 3px;
+}
+
+.plate.legendary .plate-seal {
+  color: oklch(0.99 0.02 95);
   background: linear-gradient(
-    150deg,
-    oklch(0.88 0.13 90),
-    oklch(0.68 0.13 78) 40%,
-    oklch(0.92 0.1 95)
+    145deg,
+    oklch(0.86 0.12 92),
+    oklch(0.66 0.13 78) 45%,
+    oklch(0.9 0.1 95)
   );
   box-shadow:
-    inset 0 0 0 1px oklch(0.4 0.09 70 / 60%),
-    0 2px 14px oklch(0 0 0 / 22%),
-    0 0 38px oklch(0.8 0.14 85 / 32%);
+    inset 0 1px 1px oklch(1 0 0 / 70%),
+    inset 0 -1px 2px oklch(0.4 0.08 70 / 55%),
+    0 1px 2px oklch(0.4 0.08 70 / 35%);
 }
 
-.tcg.legendary .tcg-body {
-  background: linear-gradient(
-    170deg,
-    oklch(0.3 0.04 var(--hue, 160)),
-    oklch(0.19 0.03 var(--hue, 160)) 50%,
-    oklch(0.26 0.04 var(--hue, 160))
+.plate.legendary .plate-sheen {
+  opacity: 0.55;
+  background: radial-gradient(
+    circle at var(--px, 50%) var(--py, 50%),
+    oklch(0.92 0.1 90 / 55%),
+    transparent 45%
   );
+  mix-blend-mode: multiply;
 }
 
-.tcg.legendary .tcg-hp {
-  color: oklch(0.75 0.17 30);
-}
+@media (prefers-reduced-motion: reduce) {
+  .plate {
+    transform: none;
+    transition: none;
+  }
 
-.tcg.legendary .tcg-grain {
-  mix-blend-mode: overlay;
-}
-
-.tcg.legendary .tcg-sheen {
-  opacity: 0.9;
-  background:
-    radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 30%), transparent 40%),
-    repeating-linear-gradient(
-      102deg,
-      oklch(0.95 0.11 88 / 22%) 0 2.5%,
-      oklch(1 0.02 95 / 30%) 2.5% 4%,
-      transparent 4% 8%
-    );
-  mix-blend-mode: soft-light;
+  .plate-sheen {
+    display: none;
+  }
 }
 
 /* --- choosing a frame ----------------------------------------------------- */

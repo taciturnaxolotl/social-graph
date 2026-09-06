@@ -90,12 +90,18 @@ export function tierFor(level: number): Tier {
 }
 
 /** What each tier is worth looking at for, in the order they arrive. */
+/*
+ * What each tier is made of, in the order they arrive. Materials rather than
+ * colours: the paper is the same at level one and level ten, and what changes
+ * is how it was finished. A reward that repaints the card reads as a costume
+ * change, not as an upgrade.
+ */
 export const TIER_UNLOCK: Record<Tier, string> = {
-  common: "a plain card",
-  uncommon: "a coloured frame",
-  rare: "a foil finish",
-  holo: "a holographic finish that follows your cursor",
-  legendary: "gold, and the art breaks the frame",
+  common: "plain stock",
+  uncommon: "a printed rule and the sprig in ink",
+  rare: "a blind-embossed seal",
+  holo: "a gilt edge",
+  legendary: "a foil stamp",
 };
 
 /**
