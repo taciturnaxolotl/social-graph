@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:remote": "bun run scripts/remote-dev.ts",
     "build": "vite build",
     "deploy": "vite build && wrangler deploy",
     "db:local": "wrangler d1 migrations apply social-graph --local",

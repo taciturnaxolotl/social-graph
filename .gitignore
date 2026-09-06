@@ -2,6 +2,7 @@ node_modules/
 dist/
 .data/
 .wrangler/
+wrangler.remote.jsonc
 .env
 .dev.vars
 worker-configuration.d.ts
