@@ -48,6 +48,9 @@ export const NEARBY_SHARE = 1 / 8;
 /** Below this, an edge is too weak to walk across looking for friends of friends. */
 export const WALKABLE = 4;
 
+/** How many queries a batch is made of, so a total failure can be recognised. */
+const TIERS = 6;
+
 export interface Tier {
   because: Because;
   rows: Row[];
@@ -127,13 +130,25 @@ export async function candidates(
 ): Promise<Candidate[]> {
   const gate = exclude(segments);
   const base = [me.id, limit, ...gate.values];
+  /*
+   * A tier that fails costs you that tier, not the batch — six queries and one
+   * transient D1 error should still put a card on screen. But it is counted
+   * and logged, because the failure mode this replaced was worse: every tier
+   * failing produced an empty queue, and an empty queue is drawn as "that is
+   * everyone we can show you", which is a lie told confidently.
+   */
+  let failed = 0;
   const run = (sql: string, ...extra: unknown[]) =>
     db
       .prepare(sql)
       .bind(...base, ...extra)
       .all<Row>()
       .then((r) => r.results)
-      .catch(() => [] as Row[]);
+      .catch((err) => {
+        failed++;
+        console.error(`queue tier failed: ${err instanceof Error ? err.message : err}`);
+        return [] as Row[];
+      });
 
   const [inviter, reciprocal, mutual, nearby, hall, cohort, unrated] = await Promise.all([
     me.invited_by
@@ -221,6 +236,9 @@ export async function candidates(
        ORDER BY coalesce(c.seen, 0), random() LIMIT ?2`,
     ),
   ]);
+
+  // Nothing came back and it was not because there is nobody left.
+  if (failed === TIERS && !inviter.length) throw new Error("the queue is unavailable");
 
   return blend(
     [

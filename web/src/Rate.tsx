@@ -58,6 +58,16 @@ export function Rate({ active, pinned, placed, onCount, say }: Props) {
   const queue = useRef<Candidate[]>([]);
   const history = useRef<Answer[]>([]);
   const pending = useRef<Answer[]>([]);
+  /*
+   * Every id this session has already put in front of you.
+   *
+   * A refill asks the server for people you have not rated, and the server is
+   * right at the moment it answers — but answers post in the background, so a
+   * refill fired while a handful are still in flight comes back holding people
+   * you have just placed. They are no longer in the queue to be deduplicated
+   * against, so without this they come round a second time.
+   */
+  const seen = useRef(new Set<string>());
   const fetching = useRef(false);
   const alive = useRef(true);
 
@@ -67,8 +77,9 @@ export function Rate({ active, pinned, placed, onCount, say }: Props) {
     redraw();
     try {
       const batch = await api.queue(24);
-      const known = new Set(queue.current.map((p) => p.id));
-      queue.current.push(...batch.filter((p) => !known.has(p.id)));
+      const fresh = batch.filter((p) => !seen.current.has(p.id));
+      for (const p of fresh) seen.current.add(p.id);
+      queue.current.push(...fresh);
     } catch (err) {
       say(err instanceof Error ? err.message : String(err), "err");
     } finally {
@@ -156,6 +167,7 @@ export function Rate({ active, pinned, placed, onCount, say }: Props) {
     if (!pinned) return;
     if (queue.current[0]?.id === pinned.id) return;
     queue.current = [pinned, ...queue.current.filter((p) => p.id !== pinned.id)];
+    seen.current.add(pinned.id);
     setChosen(null);
     setWhere("");
     redraw();

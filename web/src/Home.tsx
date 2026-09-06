@@ -88,7 +88,6 @@ export function Home({
   function open(person: Candidate) {
     setPinned(person);
     setQuery("");
-    say(`${person.name} is next`);
   }
 
   /*
