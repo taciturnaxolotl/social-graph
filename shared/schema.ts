@@ -59,6 +59,68 @@ export interface Person {
 }
 
 /** Your own row, which may hold the things nobody else is shown. */
+/*
+ * A card you level up, because a study that needs ten thousand people to do
+ * something repetitive for free needs a reason to come back, and a number that
+ * only goes up is the cheapest honest one. Nothing here changes what the data
+ * is worth — you cannot level by answering badly, only by answering more.
+ */
+export const TIERS = ["common", "uncommon", "rare", "holo", "legendary"] as const;
+export type Tier = (typeof TIERS)[number];
+
+/**
+ * Placements needed to reach a level, as the inverse of the curve below:
+ * 0, 5, 20, 45, 80, 125, 180, 245, 320, 405...
+ *
+ * Quadratic on purpose. Linear makes level 40 as easy as level 2 and the
+ * number stops meaning anything; exponential stalls somebody at level 6
+ * forever. This has a first level you reach in a minute and a tenth that costs
+ * four hundred, which is roughly the shape of an evening and a term.
+ */
+export const costOf = (level: number) => 5 * (level - 1) ** 2;
+
+export const levelFor = (placed: number) => 1 + Math.floor(Math.sqrt(Math.max(0, placed) / 5));
+
+export function tierFor(level: number): Tier {
+  if (level >= 10) return "legendary";
+  if (level >= 7) return "holo";
+  if (level >= 5) return "rare";
+  if (level >= 3) return "uncommon";
+  return "common";
+}
+
+/** What each tier is worth looking at for, in the order they arrive. */
+export const TIER_UNLOCK: Record<Tier, string> = {
+  common: "a plain card",
+  uncommon: "a coloured frame",
+  rare: "a foil finish",
+  holo: "a holographic finish that follows your cursor",
+  legendary: "gold, and the art breaks the frame",
+};
+
+export interface Standing {
+  level: number;
+  tier: Tier;
+  placed: number;
+  /** How many more placements to the next level. */
+  toNext: number;
+  /** How far through the current level, 0 to 1. */
+  progress: number;
+}
+
+export function standing(placed: number): Standing {
+  const level = levelFor(placed);
+  const floor = costOf(level);
+  const ceiling = costOf(level + 1);
+  return {
+    level,
+    tier: tierFor(level),
+    placed,
+    toNext: ceiling - placed,
+    progress: (placed - floor) / (ceiling - floor),
+  };
+}
+
 export interface Me extends Person {
   email: string;
   dorm: string | null;
@@ -66,6 +128,10 @@ export interface Me extends Person {
   inviteCode: string;
   rated: number;
   ratedBy: number;
+  /** Placements you bothered to write a note on. */
+  notes: number;
+  /** People who joined through your link. */
+  recruited: number;
   admin: boolean;
 }
 

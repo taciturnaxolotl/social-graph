@@ -317,15 +317,19 @@ export const skip = (db: D1Database, rater: string, subject: string) =>
     .bind(rater, subject, now())
     .run();
 
+/** Everything the card counts, in one round trip. */
 export async function counts(db: D1Database, personId: string) {
   const row = await db
     .prepare(
       `SELECT (SELECT count(*) FROM ratings WHERE rater = ?1) AS rated,
-              (SELECT count(*) FROM ratings WHERE subject = ?1 AND strength > 0) AS ratedBy`,
+              (SELECT count(*) FROM ratings WHERE subject = ?1 AND strength > 0) AS ratedBy,
+              (SELECT count(*) FROM ratings WHERE rater = ?1 AND context IS NOT NULL) AS notes,
+              (SELECT count(*) FROM people WHERE invited_by = ?1 AND joined_at IS NOT NULL)
+                AS recruited`,
     )
     .bind(personId)
-    .first<{ rated: number; ratedBy: number }>();
-  return row ?? { rated: 0, ratedBy: 0 };
+    .first<{ rated: number; ratedBy: number; notes: number; recruited: number }>();
+  return row ?? { rated: 0, ratedBy: 0, notes: 0, recruited: 0 };
 }
 
 // ---- sessions and invites -------------------------------------------------

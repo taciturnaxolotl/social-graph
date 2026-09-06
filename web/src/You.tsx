@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import type { Me } from "../../shared/schema";
 import { Avatar } from "./Avatar";
 import * as api from "./api";
+import { Card } from "./Card";
 import { setHints, useHints } from "./settings";
 
 export function You({
@@ -54,6 +55,8 @@ export function You({
 
   return (
     <section className="stack">
+      <Card me={me} />
+
       <div className="identity">
         <Avatar person={me} size={72} />
         <div>

@@ -874,3 +874,311 @@ nav button.on {
     padding: 0.625rem 0.5rem;
   }
 }
+
+/* --- the card ------------------------------------------------------------
+ *
+ * A trading card, and the one place in this app allowed to show off.
+ *
+ * The proportion is five sevenths, which is the shape of every card anybody
+ * has ever held, and most of why this reads as a card rather than a panel with
+ * a photograph in it. The rest is anatomy: a name plate, a portrait window
+ * with a hairline inside the frame, small print under the art, a move list,
+ * and a rarity mark in the corner.
+ *
+ * Each tier must differ *at rest*, not only under the pointer. The first
+ * attempt gated the whole difference on a hover effect, so a rare card and an
+ * uncommon one were the same picture until you touched them — which is no
+ * reward at all on a phone.
+ *
+ *   common      grey frame, plain
+ *   uncommon    the frame takes a colour
+ *   rare        silver frame, a standing diagonal foil band
+ *   holo        chromatic frame, the whole card shimmers and tilts
+ *   legendary   gold on near-black, and the art fills the frame
+ */
+
+.card-stage {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  perspective: 1100px;
+}
+
+.tcg {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto auto;
+  gap: 0.5rem;
+  width: min(20rem, 100%);
+  aspect-ratio: 5 / 7;
+  padding: 0.625rem;
+  border: 0.375rem solid var(--tcg-edge, oklch(0.86 0.005 286));
+  border-radius: 0.875rem;
+  background: var(--tcg-ground, var(--card));
+  color: var(--tcg-ink, var(--foreground));
+  box-shadow:
+    inset 0 0 0 1px oklch(0 0 0 / 8%),
+    0 2px 10px oklch(0 0 0 / 10%);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 260ms ease;
+  will-change: transform;
+}
+
+/* The finish is its own layer, so a tier can change it without touching the
+   card's background or its contents. */
+.tcg-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.5rem;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 2;
+  transition: opacity 260ms ease;
+  /*
+   * Foil over the art and gone by the stat block, which is where the older
+   * sets put it and also the only way the numbers stay crisp. A sheen across
+   * the whole face tints every glyph it crosses.
+   */
+  mask-image: linear-gradient(to bottom, #000 0 58%, transparent 76%);
+}
+
+.tcg-plate {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.tcg-name {
+  min-width: 0;
+  font: 700 1.0625rem / 1.15 var(--sans);
+  letter-spacing: -0.025em;
+  overflow-wrap: break-word;
+}
+
+.tcg-lv {
+  flex: 1;
+  color: var(--tcg-dim, var(--muted-foreground));
+  font: 500 0.625rem / 1 var(--sans);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tcg-lv b {
+  margin-left: 0.125rem;
+  font: 700 0.9375rem var(--mono);
+  color: var(--tcg-ink, var(--foreground));
+}
+
+.tcg-hp {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.tcg-hp small {
+  color: var(--tcg-dim, var(--muted-foreground));
+  font-size: 0.5625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tcg-hp b {
+  font: 700 1.125rem / 1 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.tcg-art {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  border-radius: 0.375rem;
+  /* The hairline inside the frame. Cards have had it since 1996. */
+  box-shadow:
+    inset 0 0 0 1px oklch(0 0 0 / 22%),
+    inset 0 0 0 3px var(--tcg-mat, oklch(0.93 0.005 286));
+  background: var(--muted);
+}
+
+.tcg-art .avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: cover;
+  font-size: 3.5rem;
+}
+
+.tcg-print {
+  margin: 0;
+  color: var(--tcg-dim, var(--muted-foreground));
+  font-size: 0.6875rem;
+  font-style: italic;
+  text-align: center;
+}
+
+/* The move list, which is the part of a card people actually read. */
+.tcg-moves {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0.375rem 0;
+  border-top: 1px solid var(--tcg-rule, var(--border));
+  border-bottom: 1px solid var(--tcg-rule, var(--border));
+}
+
+.tcg-moves div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.tcg-moves dt {
+  flex: 1;
+  min-width: 0;
+  font: 500 0.75rem / 1.4 var(--sans);
+}
+
+.tcg-moves dd {
+  margin: 0;
+  font: 700 0.9375rem / 1.4 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.tcg-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tcg-bar {
+  flex: 1;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, currentcolor 15%, transparent);
+  overflow: hidden;
+}
+
+.tcg-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tcg-edge, currentcolor);
+  transition: width 400ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.tcg-rarity {
+  color: var(--tcg-dim, var(--muted-foreground));
+  font-size: 0.5625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* uncommon ---------------------------------------------------------------- */
+
+.tcg.uncommon {
+  --tcg-edge: oklch(0.68 0.13 163);
+  --tcg-mat: oklch(0.94 0.03 163);
+}
+
+/* rare: a silver frame and a foil band that is there without the pointer ---- */
+
+.tcg.rare {
+  --tcg-edge: oklch(0.76 0.02 250);
+  --tcg-mat: oklch(0.93 0.015 250);
+  --tcg-ground: linear-gradient(150deg, oklch(0.98 0.012 250), var(--card) 42%);
+}
+
+.tcg.rare .tcg-sheen {
+  opacity: 0.4;
+  background:
+    linear-gradient(
+      104deg,
+      transparent 38%,
+      oklch(1 0 0 / 85%) 46%,
+      oklch(0.9 0.06 250 / 60%) 50%,
+      transparent 58%
+    ),
+    radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 55%), transparent 45%);
+  mix-blend-mode: overlay;
+}
+
+/* holo -------------------------------------------------------------------- */
+
+.tcg.holo {
+  --tcg-edge: oklch(0.64 0.19 295);
+  --tcg-mat: oklch(0.93 0.05 295);
+  --tcg-ground: linear-gradient(150deg, oklch(0.97 0.03 295), var(--card) 45%);
+}
+
+.tcg.holo .tcg-sheen {
+  opacity: 0.45;
+  background:
+    radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 60%), transparent 42%),
+    repeating-linear-gradient(
+      102deg,
+      oklch(0.8 0.19 20 / 40%) 0 3%,
+      oklch(0.84 0.18 90 / 40%) 3% 6%,
+      oklch(0.82 0.17 160 / 40%) 6% 9%,
+      oklch(0.76 0.19 250 / 40%) 9% 12%,
+      oklch(0.74 0.21 320 / 40%) 12% 15%
+    );
+  mix-blend-mode: color-dodge;
+}
+
+/* legendary: gold on near black, and the art stops being a window ---------- */
+
+.tcg.legendary {
+  --tcg-edge: oklch(0.8 0.14 85);
+  --tcg-mat: oklch(0.8 0.14 85);
+  --tcg-ink: oklch(0.97 0.01 85);
+  --tcg-dim: oklch(0.78 0.05 85);
+  --tcg-rule: oklch(0.8 0.14 85 / 35%);
+  --tcg-ground: linear-gradient(160deg, oklch(0.26 0.03 85), oklch(0.16 0.01 285) 55%);
+  box-shadow:
+    inset 0 0 0 1px oklch(0.8 0.14 85 / 45%),
+    0 2px 10px oklch(0 0 0 / 20%),
+    0 0 34px oklch(0.8 0.14 85 / 30%);
+}
+
+/*
+ * Gold, not rust. color-dodge over a dark ground blows the mid tones out into
+ * maroon, which reads as damage rather than foil, so this is soft-light at a
+ * much lower strength with finer bands.
+ */
+.tcg.legendary .tcg-sheen {
+  opacity: 0.9;
+  background:
+    radial-gradient(circle at var(--px, 50%) var(--py, 50%), oklch(1 0 0 / 30%), transparent 40%),
+    repeating-linear-gradient(
+      102deg,
+      oklch(0.95 0.11 88 / 22%) 0 2.5%,
+      oklch(1 0.02 95 / 30%) 2.5% 4%,
+      transparent 4% 8%
+    );
+  mix-blend-mode: soft-light;
+}
+
+.tcg.legendary .tcg-art {
+  box-shadow: inset 0 0 0 1px oklch(0.8 0.14 85 / 60%);
+}
+
+/*
+ * A card that tilts and shimmers under the pointer is exactly the kind of
+ * motion that makes some people ill. Everything above degrades to a still card
+ * whose frame, mat and ground still say which tier it is.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .tcg {
+    transform: none;
+    transition: none;
+  }
+
+  .tcg-sheen {
+    background-image: none;
+  }
+}

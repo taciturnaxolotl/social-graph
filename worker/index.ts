@@ -55,6 +55,8 @@ async function meBody(env: Env, row: Row): Promise<Me> {
     inviteCode: code,
     rated: tally.rated,
     ratedBy: tally.ratedBy,
+    notes: tally.notes,
+    recruited: tally.recruited,
     admin: isAdmin(env, row.email),
   };
 }
