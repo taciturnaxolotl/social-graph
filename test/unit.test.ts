@@ -1,6 +1,5 @@
 import { expect, test } from "bun:test";
 import { clusterOf, displayName, searchKey, segmentOf } from "../scripts/seed";
-import { ACCENTS, costOf, levelFor, SCHOOLS, schoolOf, standing, tierFor } from "../shared/schema";
 import { admissible, claims, packState, unpackState } from "../worker/auth";
 import { safeKey, sniff } from "../worker/photos";
 import { blend, NEARBY_SHARE, RANDOM_SHARE, type Tier } from "../worker/queue";
@@ -237,66 +236,4 @@ test("a room number gives up a floor or a suite, whichever the hall publishes", 
 
 test("two people in the same unit of different halls are not neighbours", () => {
   expect(clusterOf("Printy Hall", "27C")).not.toBe(clusterOf("Lawlor Hall", "27C"));
-});
-
-// ---- the card -------------------------------------------------------------
-
-test("the level curve starts fast and keeps costing more", () => {
-  expect(levelFor(0)).toBe(1);
-  expect(levelFor(4)).toBe(1);
-  expect(levelFor(5)).toBe(2);
-  expect(levelFor(20)).toBe(3);
-  expect(levelFor(405)).toBe(10);
-  // Each level costs more than the last, which is the whole point of the shape.
-  const steps = [2, 3, 4, 5, 6].map((l) => costOf(l) - costOf(l - 1));
-  expect(steps).toEqual([5, 15, 25, 35, 45]);
-});
-
-test("standing reports where you are inside the level, not just the level", () => {
-  const at = standing(32);
-  expect(at.level).toBe(3);
-  expect(at.tier).toBe("uncommon");
-  expect(at.toNext).toBe(13);
-  expect(at.progress).toBeCloseTo((32 - 20) / (45 - 20));
-  // A fresh account is at the start of level one, not halfway through nothing.
-  expect(standing(0).progress).toBe(0);
-  expect(standing(0).toNext).toBe(5);
-});
-
-test("tiers arrive in order and stop at legendary", () => {
-  expect([1, 3, 5, 7, 10, 40].map(tierFor)).toEqual([
-    "common",
-    "uncommon",
-    "rare",
-    "holo",
-    "legendary",
-    "legendary",
-  ]);
-});
-
-test("a school is found from a major, a truncated department, or neither", () => {
-  expect(schoolOf("Cyber Operations", null)).toBe("engineering");
-  // The directory truncates mid-word; matching on fragments is the point.
-  expect(schoolOf(null, "Engineering and Computer Scien")).toBe("engineering");
-  expect(schoolOf(null, "Science & Math")).toBe("science");
-  expect(schoolOf("Nursing", "School of Pharmacy")).toBe("nursing");
-  expect(schoolOf(null, "School of Pharmacy")).toBe("health");
-  expect(schoolOf("Biblical Studies", null)).toBe("bible");
-  expect(schoolOf(null, "School of Business Admin")).toBe("business");
-  // Food Service is a job, not a school, and gets the house colour.
-  expect(schoolOf(null, "Food Service")).toBe("cedarville");
-  expect(schoolOf(null, null)).toBe("cedarville");
-});
-
-test("every school and accent has a hue the stylesheet can use", () => {
-  for (const [key, school] of Object.entries(SCHOOLS)) {
-    expect(school.hue, key).toBeGreaterThanOrEqual(0);
-    expect(school.hue, key).toBeLessThan(360);
-    expect(school.mark.length, key).toBeGreaterThan(0);
-  }
-  // -1 is the sentinel for "follow your school", and only "school" may use it.
-  for (const [key, accent] of Object.entries(ACCENTS)) {
-    if (key !== "school") expect(accent.hue, key).toBeGreaterThanOrEqual(0);
-    expect(accent.from, key).toBeGreaterThanOrEqual(1);
-  }
 });

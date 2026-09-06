@@ -45,16 +45,13 @@ export interface Row {
   cluster: string | null;
   hometown: string | null;
   photo: string | null;
-  card_accent: string | null;
-  card_flavour: string | null;
   invited_by: string | null;
   joined_at: string | null;
   tombstoned_at: string | null;
 }
 
 export const COLUMNS = `p.id, p.name, p.email, p.segment, p.class, p.major, p.department,
-  p.dorm, p.cluster, p.hometown, p.photo, p.card_accent, p.card_flavour,
-  p.invited_by, p.joined_at, p.tombstoned_at`;
+  p.dorm, p.cluster, p.hometown, p.photo, p.invited_by, p.joined_at, p.tombstoned_at`;
 
 const SELECT = `SELECT ${COLUMNS} FROM people p`;
 
@@ -155,8 +152,6 @@ export interface Patch {
   major?: string | null;
   dorm?: string | null;
   photo?: string | null;
-  accent?: string | null;
-  flavour?: string | null;
 }
 
 /**
@@ -175,8 +170,7 @@ export async function updateProfile(db: D1Database, current: Row, patch: Patch) 
   const name = patch.name?.trim() || current.name;
   await db
     .prepare(
-      `UPDATE people SET name = ?2, search = ?3, major = ?4, dorm = ?5, photo = ?6, cluster = ?7,
-         card_accent = ?8, card_flavour = ?9
+      `UPDATE people SET name = ?2, search = ?3, major = ?4, dorm = ?5, photo = ?6, cluster = ?7
        WHERE id = ?1 AND tombstoned_at IS NULL`,
     )
     .bind(
@@ -187,8 +181,6 @@ export async function updateProfile(db: D1Database, current: Row, patch: Patch) 
       patch.dorm === undefined ? current.dorm : patch.dorm,
       patch.photo === undefined ? current.photo : patch.photo,
       keepsCluster(current, patch) ? current.cluster : null,
-      patch.accent === undefined ? current.card_accent : patch.accent,
-      patch.flavour === undefined ? current.card_flavour : patch.flavour,
     )
     .run();
 }
@@ -224,7 +216,7 @@ export function tombstone(db: D1Database, personId: string) {
       .prepare(
         `UPDATE people SET name = 'withdrawn', search = '', email = NULL, major = NULL,
            department = NULL, dorm = NULL, hometown = NULL, class = NULL, photo = NULL,
-           card_accent = NULL, card_flavour = NULL, invited_by = NULL, tombstoned_at = ?2
+           invited_by = NULL, tombstoned_at = ?2
          WHERE id = ?1`,
       )
       .bind(personId, now()),
@@ -325,19 +317,15 @@ export const skip = (db: D1Database, rater: string, subject: string) =>
     .bind(rater, subject, now())
     .run();
 
-/** Everything the card counts, in one round trip. */
 export async function counts(db: D1Database, personId: string) {
   const row = await db
     .prepare(
       `SELECT (SELECT count(*) FROM ratings WHERE rater = ?1) AS answers,
-              (SELECT count(*) FROM ratings WHERE subject = ?1 AND strength > 0) AS knownBy,
-              (SELECT count(*) FROM ratings WHERE rater = ?1 AND context IS NOT NULL) AS notes,
-              (SELECT count(*) FROM people WHERE invited_by = ?1 AND joined_at IS NOT NULL)
-                AS recruited`,
+              (SELECT count(*) FROM ratings WHERE subject = ?1 AND strength > 0) AS knownBy`,
     )
     .bind(personId)
-    .first<{ answers: number; knownBy: number; notes: number; recruited: number }>();
-  return row ?? { answers: 0, knownBy: 0, notes: 0, recruited: 0 };
+    .first<{ answers: number; knownBy: number }>();
+  return row ?? { answers: 0, knownBy: 0 };
 }
 
 // ---- sessions and invites -------------------------------------------------

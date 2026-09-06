@@ -208,41 +208,6 @@ building would also undo the care above. The badge appears only when the
 answer is a person: who invited you, who has already placed you, who you are
 known by.
 
-### the card
-
-A prototype, and the one place in this app allowed to show off. Ten thousand
-people are being asked to do something repetitive for nothing, and a number
-that only goes up is the cheapest honest motivator there is — honest because
-you cannot level by answering badly, only by answering more.
-
-Level is `1 + √(answers / 5)`, so the thresholds run 5, 20, 45, 80, 125, 180,
-245, 320, 405. Quadratic on purpose: linear makes level 40 as cheap as level 2
-and the number stops meaning anything, exponential strands you at 6 forever.
-
-It is a specimen plate, of the kind a herbarium sheet carries: cream stock,
-hairline rules, a mounted photograph held by four corners, small caps, dot
-leaders, a collection number.
-
-It was a Pokémon card twice first, and both times it was cosplay rather than
-design — a gold border with no reason to be gold, energy pips for a mechanic
-that does not exist, weakness and retreat columns repurposed as trivia.
-Decoration pretending to be information, in four hues that had nothing to do
-with each other or with the rest of the app. A plate is the same idea done
-honestly: every line on it is a real fact about a specimen, and none of it is
-borrowed.
-
-Levelling changes what the card appears to be *made of* rather than repainting
-it — plain stock, then a printed rule, a blind-embossed seal, a gilt edge, a
-foil stamp. The paper is the same colour at level one and level ten, which is
-what keeps a reward from reading as a costume change. Level is
-`1 + √(answers / 5)`, so the thresholds run 5, 20, 45, 80, 125, 180, 245, 320,
-405: quadratic, because linear makes level 40 as cheap as level 2 and the
-number stops meaning anything.
-
-The single hue on the card is the ink, taken from the school your major or
-department puts you in — ten of them — or from a frame colour you pick, more
-of which unlock as you go. You can also write the line under the label.
-
 ### withdrawing
 
 Anybody can leave, from their own page, without asking. It destroys everything
@@ -344,27 +309,33 @@ show them is a fact about the machine in front of you: on for the laptop you
 place two hundred people from, off for the phone you use in a queue.
 
 One card, one row of ten targets, and everything else sized around them. On a
-phone the ten become two rows of five at fifty-two pixels tall, the keyboard
-hints disappear, and a search result opens its scale below the name when you
-tap it rather than trying to fit eleven buttons across a 390px screen — which
-works out at fourteen pixels each, and fourteen pixels is not a button.
+phone the ten become two rows of five at fifty-two pixels tall and the keyboard
+hints disappear.
 
-There is one page, and it is the loop. The word everywhere above the database
-is *answer*: the table records ratings because that is what an edge weight is
-called in the literature, but the thing a person does here is answer a
-question — including the answer "never heard of them", which is neither a
-rating nor a placement. Two vocabularies for one action is worse than either. Search sits above the card
-rather than behind a tab, because looking somebody up is the same task as
-rating them: you thought of a person, or you want to change an answer, and
-either way it ends in pressing a number. Typing swaps the card for the
-matches; clearing the box puts the queue back where it was, which is why the
-card is hidden rather than unmounted.
+There is one page and it is the loop. The word everywhere above the database is
+*answer*: the table records ratings because that is what an edge weight is
+called in the literature, but the thing a person does here is answer a question
+— including the answer "never heard of them", which is neither a rating nor a
+placement. Two vocabularies for one action is worse than either.
+
+Search sits above the card rather than behind a tab, because looking somebody
+up is the same task as answering about them: you thought of a person, or you
+want to change an answer, and either way it ends in pressing a number.
+Choosing a result does not open a second, smaller rating control beside their
+name — it puts them at the front of the queue and gets out of the way, so they
+arrive on the same card as everybody else. There was a whole parallel widget
+doing that job worse, and on a phone it was eleven targets across 390 pixels.
+Typing swaps the card for the matches; clearing the box puts the queue back
+where it was, which is why the card is hidden rather than unmounted.
 
 The loop never waits on the network. A batch is fetched ahead and refilled
-while the previous one is still being answered, answers post in the
-background, and a failed post is retried on the next answer rather than thrown
-away. One through nine, zero for ten, space for a stranger, `s` to defer, `z`
-to undo.
+while the previous one is still being answered, answers post in the background,
+and a failed post is retried on the next answer rather than thrown away. Every
+id shown this session is remembered, because a refill fired while a few answers
+are still in flight comes back holding people you have just placed.
+
+One through nine, zero for ten, `x` or space for a stranger, Enter to send, `s`
+to defer, `z` to undo.
 
 ### getting the data out
 

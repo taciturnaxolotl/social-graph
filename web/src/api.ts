@@ -38,13 +38,8 @@ export const undo = (subject: string) => send("/api/undo", "POST", { subject });
 export const search = (q: string) =>
   call<{ people: Candidate[] }>(`/api/search?q=${encodeURIComponent(q)}`).then((r) => r.people);
 export const lists = () => call<{ majors: string[]; dorms: string[] }>("/api/lists");
-export const save = (patch: {
-  name?: string;
-  major?: string | null;
-  dorm?: string | null;
-  accent?: string | null;
-  flavour?: string | null;
-}) => send<Me>("/api/me", "PATCH", patch);
+export const save = (patch: { name?: string; major?: string | null; dorm?: string | null }) =>
+  send<Me>("/api/me", "PATCH", patch);
 export const withdraw = () =>
   send<{ withdrawn: boolean }>("/api/me/withdraw", "POST", { confirm: "withdraw" });
 export const signOut = () => send("/auth/out", "POST", {});

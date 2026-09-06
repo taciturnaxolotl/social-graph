@@ -6,10 +6,9 @@
  */
 
 import { useEffect, useState } from "react";
-import { ACCENTS, MAX_FLAVOUR, type Me, standing } from "../../shared/schema";
+import type { Me } from "../../shared/schema";
 import { Avatar } from "./Avatar";
 import * as api from "./api";
-import { Card } from "./Card";
 import { setHints, useHints } from "./settings";
 
 export function You({
@@ -29,8 +28,6 @@ export function You({
     dorms: [],
   });
   const [confirm, setConfirm] = useState("");
-  const [flavour, setFlavour] = useState(me.flavour ?? "");
-  const level = standing(me.answers).level;
   const [copied, setCopied] = useState(false);
   const hints = useHints();
 
@@ -57,8 +54,6 @@ export function You({
 
   return (
     <section className="stack">
-      <Card me={me} />
-
       <div className="identity">
         <Avatar person={me} size={72} />
         <div>
@@ -157,65 +152,6 @@ export function You({
           save
         </button>
       </form>
-
-      {/* The card is the reward, so the things you can change about it live
-          directly under it rather than in a settings page somewhere else. */}
-      <div className="card">
-        <h3>your card</h3>
-        <p className="muted">
-          the frame follows your school until you pick another. more of them arrive as you level.
-        </p>
-        <div className="accents">
-          {Object.entries(ACCENTS).map(([key, accent]) => {
-            const locked = level < accent.from;
-            const on = (me.accent ?? "school") === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                className={`accent${key === "school" ? " school" : ""}${on ? " on" : ""}`}
-                style={{ "--hue": accent.hue } as React.CSSProperties}
-                disabled={locked}
-                aria-pressed={on}
-                title={locked ? `${accent.label} — level ${accent.from}` : accent.label}
-                onClick={async () => {
-                  await api.save({ accent: key === "school" ? null : key });
-                  await refresh();
-                }}
-              >
-                <span className="sr-only">
-                  {accent.label}
-                  {locked ? `, locked until level ${accent.from}` : ""}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <label className="field">
-          <span className="label">
-            your line <span className="muted">optional</span>
-          </span>
-          <input
-            className="input"
-            maxLength={MAX_FLAVOUR}
-            placeholder="something to put under the picture"
-            value={flavour}
-            enterKeyHint="done"
-            onChange={(e) => setFlavour(e.target.value)}
-          />
-        </label>
-        <button
-          type="button"
-          className="btn btn-outline"
-          onClick={async () => {
-            await api.save({ flavour: flavour.trim() || null });
-            await refresh();
-            say("saved", "ok");
-          }}
-        >
-          save line
-        </button>
-      </div>
 
       <div className="card">
         <h3>this device</h3>
