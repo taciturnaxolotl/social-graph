@@ -1,0 +1,12 @@
+# Google OAuth. The authorized redirect URI must be exactly $ORIGIN/auth/callback
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Comma separated. These accounts can see /admin and change which segments are live.
+ADMIN_EMAILS=you@cedarville.edu
+
+# Bearer token the photo ingest script uses. `wrangler secret put INGEST_TOKEN` in production.
+INGEST_TOKEN=
+
+# Set to 1 to enable /auth/dev, which signs in without Google. Local only.
+DEV_LOGIN=1

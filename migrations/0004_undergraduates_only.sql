@@ -1,0 +1,11 @@
+-- Undergraduates only, to begin with.
+--
+-- Graduate and professional students are seeded and dark. They are the group
+-- least likely to know, or be known by, a random person from the population
+-- the queue is drawing from — a pharmacy student on rotation and a sophomore
+-- in Printy share a registrar and nothing else — so pairing them costs a card
+-- and returns "never heard of them".
+--
+-- The admin tab turns them back on. This is a starting point, not a judgement
+-- about who counts.
+UPDATE settings SET value = '["ug"]' WHERE key = 'segments';
